@@ -172,3 +172,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Mine
+data/
+data_old/
+logs/
+data.zip
+slurm*
+container.sif

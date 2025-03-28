@@ -177,6 +177,7 @@ cython_debug/
 data/
 data_old/
 logs/
+wandb/
 data.zip
 slurm*
 *.sif

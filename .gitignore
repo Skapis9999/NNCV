@@ -180,3 +180,4 @@ logs/
 data.zip
 slurm*
 *.sif
+*.pth

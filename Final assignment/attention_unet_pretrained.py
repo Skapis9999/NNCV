@@ -24,6 +24,11 @@ class AttentionBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, g, x):
+        # Upsample g to match x’s spatial dimensions
+        if g.shape[2:] != x.shape[2:]:
+            g = F.interpolate(g, size=x.shape[2:], mode="bilinear", align_corners=True)
+        
+
         g1 = self.W_g(g)
         x1 = self.W_x(x)
         psi = self.relu(g1 + x1)

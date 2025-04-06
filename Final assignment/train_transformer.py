@@ -16,7 +16,8 @@ from torchvision.transforms.v2 import (
     ToDtype,
 )
 
-from attention_unet import AttentionUNet  # Importing the new model
+# from attention_unet import AttentionUNet  # Importing the new model
+from attention_unet_pretrained import AttentionUNet  # Importing the new model
 
 # Mapping class IDs to train IDs
 id_to_trainid = {cls.id: cls.train_id for cls in Cityscapes.classes}

@@ -183,3 +183,4 @@ slurm*
 *.sif
 *.pth
 *.zip
+test.py

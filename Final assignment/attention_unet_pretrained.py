@@ -111,21 +111,41 @@ class AttentionUNet(nn.Module):
         # Decoder with attention
         d4 = self.up4(center)
         x4 = self.att4(d4, x4)
+
+        # Ensure spatial dimensions match
+        if d4.shape[2:] != x4.shape[2:]:
+            d4 = F.interpolate(d4, size=x4.shape[2:], mode="bilinear", align_corners=True)
+            
         d4 = torch.cat((x4, d4), dim=1)
         d4 = self.up_conv4(d4)
 
         d3 = self.up3(d4)
         x3 = self.att3(d3, x3)
+
+        # Ensure spatial dimensions match
+        if d3.shape[2:] != x3.shape[2:]:
+            d3 = F.interpolate(d3, size=x3.shape[2:], mode="bilinear", align_corners=True)
+          
         d3 = torch.cat((x3, d3), dim=1)
         d3 = self.up_conv3(d3)
 
         d2 = self.up2(d3)
         x2 = self.att2(d2, x2)
+        
+        # Ensure spatial dimensions match
+        if d2.shape[2:] != x2.shape[2:]:
+            d2 = F.interpolate(d2, size=x2.shape[2:], mode="bilinear", align_corners=True)
+         
         d2 = torch.cat((x2, d2), dim=1)
         d2 = self.up_conv2(d2)
 
         d1 = self.up1(d2)
         x1 = self.att1(d1, x1)
+                
+        # Ensure spatial dimensions match
+        if d1.shape[2:] != x1.shape[2:]:
+            d1 = F.interpolate(d1, size=x1.shape[2:], mode="bilinear", align_corners=True)
+         
         d1 = torch.cat((x1, d1), dim=1)
         d1 = self.up_conv1(d1)
 

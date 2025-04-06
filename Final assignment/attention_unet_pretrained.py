@@ -101,53 +101,32 @@ class AttentionUNet(nn.Module):
     def forward(self, x):
         # Encoder
         x0 = self.input_layer(x)        
-        x1 = self.encoder1(self.pool1(x0))  
-        x2 = self.encoder2(x1)          
-        x3 = self.encoder3(x2)          
-        x4 = self.encoder4(x3)          
+        x1 = self.encoder1(self.pool1(x0))  # (64x64)
+        x2 = self.encoder2(x1)  # (32x32)
+        x3 = self.encoder3(x2)  # (16x16)
+        x4 = self.encoder4(x3)  # (8x8)
 
-        center = self.center(x4)        
-
+        center = self.center(x4)  # (8x8)
         # Decoder with attention
-        d4 = self.up4(center)
+        d4 = self.up4(center)  # (16x16)
         x4 = self.att4(d4, x4)
-
-        # Ensure spatial dimensions match
-        if d4.shape[2:] != x4.shape[2:]:
-            d4 = F.interpolate(d4, size=x4.shape[2:], mode="bilinear", align_corners=True)
-            
         d4 = torch.cat((x4, d4), dim=1)
-        d4 = self.up_conv4(d4)
+        d4 = self.up_conv4(d4)  # (16x16) --> (32x32)
 
-        d3 = self.up3(d4)
+        d3 = self.up3(d4)  # (64x64)
         x3 = self.att3(d3, x3)
-
-        # Ensure spatial dimensions match
-        if d3.shape[2:] != x3.shape[2:]:
-            d3 = F.interpolate(d3, size=x3.shape[2:], mode="bilinear", align_corners=True)
-          
         d3 = torch.cat((x3, d3), dim=1)
-        d3 = self.up_conv3(d3)
+        d3 = self.up_conv3(d3)  # (64x64) --> (128x128)
 
-        d2 = self.up2(d3)
+        d2 = self.up2(d3)  # (128x128) --> (256x256)
         x2 = self.att2(d2, x2)
-        
-        # Ensure spatial dimensions match
-        if d2.shape[2:] != x2.shape[2:]:
-            d2 = F.interpolate(d2, size=x2.shape[2:], mode="bilinear", align_corners=True)
-         
         d2 = torch.cat((x2, d2), dim=1)
         d2 = self.up_conv2(d2)
 
         d1 = self.up1(d2)
         x1 = self.att1(d1, x1)
-                
-        # Ensure spatial dimensions match
-        if d1.shape[2:] != x1.shape[2:]:
-            d1 = F.interpolate(d1, size=x1.shape[2:], mode="bilinear", align_corners=True)
-         
         d1 = torch.cat((x1, d1), dim=1)
         d1 = self.up_conv1(d1)
 
-        out = self.final(d1)
+        out = self.final(d1)  # (256x256)
         return out

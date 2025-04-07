@@ -104,6 +104,8 @@ class AttentionUNet(nn.Module):
         self.up_conv1 = self._conv_block(128, 64)
         self.final = nn.Conv2d(64, n_classes, kernel_size=1)
 
+        self.output_refine = nn.Conv2d(n_classes, n_classes, kernel_size=3, padding=1)
+
     def _conv_block(self, in_channels, out_channels):
         return nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
@@ -183,4 +185,5 @@ class AttentionUNet(nn.Module):
 
         out = self.final(d1)  # (256x256)
         out = F.interpolate(out, size=x.shape[2:], mode='bilinear', align_corners=False)
+        out = self.output_refine(out)
         return out

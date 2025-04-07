@@ -18,6 +18,15 @@ wandb login
 #     --seed 42 \
 #     --experiment-id "attention--unet-training" \
 
+# python3 train_transformer.py \
+#     --data-dir ./data/cityscapes \
+#     --batch-size 64 \
+#     --epochs 100 \
+#     --lr 0.0001 \
+#     --num-workers 10 \
+#     --seed 42 \
+#     --experiment-id "attention--unet-training-pretrained-end-with-conv" \
+
 python3 train_transformer.py \
     --data-dir ./data/cityscapes \
     --batch-size 64 \
@@ -25,4 +34,4 @@ python3 train_transformer.py \
     --lr 0.0001 \
     --num-workers 10 \
     --seed 42 \
-    --experiment-id "attention--unet-training-pretrained-end-with-conv" \
+    --experiment-id "attention--unet-training-pretrained-end-with-conv-scheduler" \

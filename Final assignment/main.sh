@@ -25,4 +25,4 @@ python3 train_transformer.py \
     --lr 0.0001 \
     --num-workers 10 \
     --seed 42 \
-    --experiment-id "attention--unet-training-pretrained" \
+    --experiment-id "attention--unet-training-pretrained-end-with-conv" \

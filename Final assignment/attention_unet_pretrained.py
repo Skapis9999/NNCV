@@ -27,7 +27,7 @@ class AttentionBlock(nn.Module):
         # Upsample g to match x’s spatial dimensions
         if g.shape[2:] != x.shape[2:]:
             g = F.interpolate(g, size=x.shape[2:], mode="bilinear", align_corners=True)
-        
+            print(g)
 
         g1 = self.W_g(g)
         x1 = self.W_x(x)
@@ -72,22 +72,36 @@ class AttentionUNet(nn.Module):
         self.center = self._conv_block(512, 1024)
 
         # Decoder
-        self.up4 = UpConv(1024, 512)
-        self.att4 = AttentionBlock(512, 512, 256)
-        self.up_conv4 = self._conv_block(1024, 512)
+        # self.up4 = UpConv(1024, 512)
+        # self.att4 = AttentionBlock(512, 512, 256)
+        # self.up_conv4 = self._conv_block(1024, 512)
 
-        self.up3 = UpConv(512, 256)
-        self.att3 = AttentionBlock(256, 256, 128)
-        self.up_conv3 = self._conv_block(512, 256)
+        # self.up3 = UpConv(512, 256)
+        # self.att3 = AttentionBlock(256, 256, 128)
+        # self.up_conv3 = self._conv_block(512, 256)
 
-        self.up2 = UpConv(256, 128)
-        self.att2 = AttentionBlock(128, 128, 64)
-        self.up_conv2 = self._conv_block(256, 128)
+        # self.up2 = UpConv(256, 128)
+        # self.att2 = AttentionBlock(128, 128, 64)
+        # self.up_conv2 = self._conv_block(256, 128)
 
-        self.up1 = UpConv(128, 64)
+        # self.up1 = UpConv(128, 64)
+        # self.att1 = AttentionBlock(64, 64, 32)
+        # self.up_conv1 = self._conv_block(128, 64)
+        self.up4 = UpConv(512, 256)
+        self.att4 = AttentionBlock(256, 256, 128)
+        self.up_conv4 = self._conv_block(512, 256)
+
+        self.up3 = UpConv(256, 128)
+        self.att3 = AttentionBlock(128, 128, 64)
+        self.up_conv3 = self._conv_block(256, 128)
+
+        self.up2 = UpConv(128, 64)
+        self.att2 = AttentionBlock(64, 64, 32)
+        self.up_conv2 = self._conv_block(128, 64)
+
+        self.up1 = UpConv(64, 64)
         self.att1 = AttentionBlock(64, 64, 32)
         self.up_conv1 = self._conv_block(128, 64)
-
         self.final = nn.Conv2d(64, n_classes, kernel_size=1)
 
     def _conv_block(self, in_channels, out_channels):
@@ -106,48 +120,67 @@ class AttentionUNet(nn.Module):
         x3 = self.encoder3(x2)  # (16x16)
         x4 = self.encoder4(x3)  # (8x8)
 
-        center = self.center(x4)  # (8x8)
+        # center = self.center(x4)  # (8x8)
         
-        # Decoder with attention
-        d4 = self.up4(center)  # (16x16)
-        x4 = self.att4(d4, x4)
+        # # Decoder with attention
+        # d4 = self.up4(center)  # (16x16)
+        # x4 = self.att4(d4, x4)
         
-        # Ensure the spatial dimensions match before concatenating
-        if d4.shape[2:] != x4.shape[2:]:
-            d4 = F.interpolate(d4, size=x4.shape[2:], mode="bilinear", align_corners=True)
+        # # Ensure the spatial dimensions match before concatenating
+        # if d4.shape[2:] != x4.shape[2:]:
+        #     d4 = F.interpolate(d4, size=x4.shape[2:], mode="bilinear", align_corners=True)
         
-        d4 = torch.cat((x4, d4), dim=1)  # Concatenate along channel dimension
-        d4 = self.up_conv4(d4)  # (16x16) --> (32x32)
+        # d4 = torch.cat((x4, d4), dim=1)  # Concatenate along channel dimension
+        # d4 = self.up_conv4(d4)  # (16x16) --> (32x32)
 
-        d3 = self.up3(d4)  # (64x64)
-        x3 = self.att3(d3, x3)
+        # d3 = self.up3(d4)  # (64x64)
+        # x3 = self.att3(d3, x3)
         
-        # Ensure the spatial dimensions match before concatenating
-        if d3.shape[2:] != x3.shape[2:]:
-            d3 = F.interpolate(d3, size=x3.shape[2:], mode="bilinear", align_corners=True)
+        # # Ensure the spatial dimensions match before concatenating
+        # if d3.shape[2:] != x3.shape[2:]:
+        #     d3 = F.interpolate(d3, size=x3.shape[2:], mode="bilinear", align_corners=True)
         
-        d3 = torch.cat((x3, d3), dim=1)
-        d3 = self.up_conv3(d3)  # (64x64) --> (128x128)
+        # d3 = torch.cat((x3, d3), dim=1)
+        # d3 = self.up_conv3(d3)  # (64x64) --> (128x128)
 
-        d2 = self.up2(d3)  # (128x128) --> (256x256)
-        x2 = self.att2(d2, x2)
+        # d2 = self.up2(d3)  # (128x128) --> (256x256)
+        # x2 = self.att2(d2, x2)
         
-        # Ensure the spatial dimensions match before concatenating
-        if d2.shape[2:] != x2.shape[2:]:
-            d2 = F.interpolate(d2, size=x2.shape[2:], mode="bilinear", align_corners=True)
+        # # Ensure the spatial dimensions match before concatenating
+        # if d2.shape[2:] != x2.shape[2:]:
+        #     print(x2.shape[2:])
+        #     d2 = F.interpolate(d2, size=x2.shape[2:], mode="bilinear", align_corners=True)
         
-        d2 = torch.cat((x2, d2), dim=1)
-        d2 = self.up_conv2(d2)
+        # d2 = torch.cat((x2, d2), dim=1)
+        # d2 = self.up_conv2(d2)
+
+        # d1 = self.up1(d2)
+        # x1 = self.att1(d1, x1)
+        
+        # # Ensure the spatial dimensions match before concatenating
+        # if d1.shape[2:] != x1.shape[2:]:
+        #     print(x1.shape[2:])
+        #     d1 = F.interpolate(d1, size=x1.shape[2:], mode="bilinear", align_corners=True)
+        
+        # d1 = torch.cat((x1, d1), dim=1)
+        # d1 = self.up_conv1(d1)
+
+        d4 = self.up4(x4)
+        x3 = self.att4(d4, x3)
+        d4 = self.up_conv4(torch.cat([x3, d4], dim=1))
+
+        d3 = self.up3(d4)
+        x2 = self.att3(d3, x2)
+        d3 = self.up_conv3(torch.cat([x2, d3], dim=1))
+
+        d2 = self.up2(d3)
+        x1 = self.att2(d2, x1)
+        d2 = self.up_conv2(torch.cat([x1, d2], dim=1))
 
         d1 = self.up1(d2)
-        x1 = self.att1(d1, x1)
-        
-        # Ensure the spatial dimensions match before concatenating
-        if d1.shape[2:] != x1.shape[2:]:
-            d1 = F.interpolate(d1, size=x1.shape[2:], mode="bilinear", align_corners=True)
-        
-        d1 = torch.cat((x1, d1), dim=1)
-        d1 = self.up_conv1(d1)
+        x0 = self.att1(d1, x0)
+        d1 = self.up_conv1(torch.cat([x0, d1], dim=1))
 
         out = self.final(d1)  # (256x256)
+        out = F.interpolate(out, size=x.shape[2:], mode='bilinear', align_corners=False)
         return out

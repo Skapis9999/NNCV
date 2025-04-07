@@ -185,5 +185,5 @@ class AttentionUNet(nn.Module):
 
         out = self.final(d1)  # (256x256)
         out = F.interpolate(out, size=x.shape[2:], mode='bilinear', align_corners=False)
-        out = self.output_refine(out)
+        # out = self.output_refine(out)
         return out

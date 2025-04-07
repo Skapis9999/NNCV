@@ -15,6 +15,7 @@ from torchvision.transforms.v2 import (
     ToImage,
     ToDtype,
 )
+from torch.optim.lr_scheduler import StepLR
 
 # from attention_unet import AttentionUNet  # Importing the new model
 from attention_unet_pretrained import AttentionUNet  # Importing the new model
@@ -87,7 +88,8 @@ def main(args):
         n_classes=19).to(device)
     criterion = nn.CrossEntropyLoss(ignore_index=255)
     optimizer = AdamW(model.parameters(), lr=args.lr)
-    
+    scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
+
     best_valid_loss = float('inf')
     for epoch in range(args.epochs):
         print(f"Epoch {epoch+1:04}/{args.epochs:04}")
@@ -125,7 +127,10 @@ def main(args):
             if valid_loss < best_valid_loss:
                 best_valid_loss = valid_loss
                 torch.save(model.state_dict(), os.path.join(output_dir, f"best_model-epoch={epoch:04}-val_loss={valid_loss:.4f}.pth"))
-    
+        scheduler.step()
+        current_lr = optimizer.param_groups[0]['lr']
+        wandb.log({"learning_rate": current_lr}, step=(epoch + 1) * len(train_dataloader) - 1)
+
     print("Training complete!")
     torch.save(model.state_dict(), os.path.join(output_dir, f"final_model-epoch={epoch:04}-val_loss={valid_loss:.4f}.pth"))
     wandb.finish()

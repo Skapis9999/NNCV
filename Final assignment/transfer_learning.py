@@ -11,6 +11,13 @@ from torchvision.utils import make_grid
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize
 from torch.optim.lr_scheduler import StepLR
 from torchvision.transforms.v2 import functional as F
+from torchvision.transforms.v2 import (
+    Compose,
+    Normalize,
+    Resize,
+    ToImage,
+    ToDtype,
+)
 from segment_anything import sam_model_registry
 
 # Mapping class IDs to train IDs
@@ -100,7 +107,12 @@ def main(args):
     torch.backends.cudnn.deterministic = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    transform = CityscapesTransform()
+    transform = Compose([
+        ToImage(),
+        Resize((512, 512)),
+        ToDtype(torch.float32, scale=True),
+        Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
 
     train_dataset = Cityscapes(args.data_dir, split="train", mode="fine", target_type="semantic", transforms=transform)
     valid_dataset = Cityscapes(args.data_dir, split="val", mode="fine", target_type="semantic", transforms=transform)

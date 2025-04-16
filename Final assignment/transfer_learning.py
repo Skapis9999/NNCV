@@ -1,64 +1,97 @@
 import os
+from argparse import ArgumentParser
+
+import wandb
 import torch
 import torch.nn as nn
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from torchvision.datasets import Cityscapes, wrap_dataset_for_transforms_v2
-from torchvision.transforms.v2 import Compose, Normalize, Resize, ToImage, ToDtype
-import wandb
-from argparse import ArgumentParser
-from segment_anything import sam_model_registry
-import time
+from torchvision.utils import make_grid
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize
+from torch.optim.lr_scheduler import StepLR
 
-# Lightweight segmentation head
-class LightSegHead(nn.Module):
-    def __init__(self, in_channels, num_classes):
+from segment_anything import sam_model_registry
+
+# Mapping class IDs to train IDs
+id_to_trainid = {cls.id: cls.train_id for cls in Cityscapes.classes}
+def convert_to_train_id(label_img: torch.Tensor) -> torch.Tensor:
+    return label_img.apply_(lambda x: id_to_trainid[x])
+
+# Mapping train IDs to color
+train_id_to_color = {cls.train_id: cls.color for cls in Cityscapes.classes if cls.train_id != 255}
+train_id_to_color[255] = (0, 0, 0)  # Assign black to ignored labels
+def convert_train_id_to_color(prediction: torch.Tensor) -> torch.Tensor:
+    batch, _, height, width = prediction.shape
+    color_image = torch.zeros((batch, 3, height, width), dtype=torch.uint8)
+
+    for train_id, color in train_id_to_color.items():
+        mask = prediction[:, 0] == train_id
+        for i in range(3):
+            color_image[:, i][mask] = color[i]
+
+    return color_image
+
+# SAM loading
+def load_sam_model(checkpoint_path: str, device: torch.device):
+    sam = sam_model_registry["vit_h"](checkpoint=checkpoint_path).to(device)
+    return sam.image_encoder
+
+# Decoder
+class SAMSegmentationDecoder(nn.Module):
+    def __init__(self, encoder_out_dim=1280, num_classes=19):
         super().__init__()
-        self.decode = nn.Sequential(
-            nn.Conv2d(in_channels, 128, 3, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(128, num_classes, 1)
+        self.decoder = nn.Sequential(
+            nn.Conv2d(encoder_out_dim, 512, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
+            nn.Conv2d(512, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
+            nn.Conv2d(256, num_classes, kernel_size=1)
         )
 
     def forward(self, x):
-        return self.decode(x)
+        return self.decoder(x)
 
+class SAMSegmentationModel(nn.Module):
+    def __init__(self, encoder, num_classes=19):
+        super().__init__()
+        self.encoder = encoder
+        self.decoder = SAMSegmentationDecoder(encoder_out_dim=1280, num_classes=num_classes)
+
+    def forward(self, x):
+        with torch.no_grad():
+            feats = self.encoder(x)
+        out = self.decoder(feats)
+        return out
 
 def get_args_parser():
-    parser = ArgumentParser("SAM to Lightweight Transfer Learning")
+    parser = ArgumentParser("Training SAM-based segmentation model")
     parser.add_argument("--data-dir", type=str, default="./data/cityscapes")
     parser.add_argument("--batch-size", type=int, default=8)
-    parser.add_argument("--epochs", type=int, default=5)
-    parser.add_argument("--num-workers", type=int, default=4)
-    parser.add_argument("--experiment-id", type=str, default="sam-light-transfer")
+    parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--lr", type=float, default=0.0001)
+    parser.add_argument("--num-workers", type=int, default=4)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--experiment-id", type=str, default="sam-vit-h-transfer")
+    parser.add_argument("--sam-checkpoint", type=str, required=True, help="Path to sam_vit_h_4b8939.pth")
     return parser
 
+def main(args):
+    wandb.init(project="5lsm0-cityscapes-segmentation", name=args.experiment_id, config=vars(args))
 
-def fine_tune_light_model(args):
-    wandb.init(project="sam-cityscapes", name=args.experiment_id, config=vars(args))
+    output_dir = os.path.join("checkpoints", args.experiment_id)
+    os.makedirs(output_dir, exist_ok=True)
 
+    torch.manual_seed(args.seed)
+    torch.backends.cudnn.deterministic = True
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Load pretrained SAM model https://huggingface.co/spaces/abhishek/StableSAM/blob/main/sam_vit_h_4b8939.pth
-    sam_checkpoint = "sam_vit_h_4b8939.pth"
-    model_type = "vit_h"
-    sam = sam_model_registry[model_type](checkpoint=sam_checkpoint).to(device)
-    sam.eval()
-    for param in sam.parameters():
-        param.requires_grad = False
-
-    # Lightweight segmentation head
-    light_head = LightSegHead(in_channels=256, num_classes=20).to(device)  # Adjust channels if needed
-
-    criterion = nn.CrossEntropyLoss(ignore_index=255)
-    optimizer = AdamW(light_head.parameters(), lr=args.lr)
-
     transform = Compose([
-        ToImage(),
-        Resize((1024, 1024)),  # Must match what SAM expects
-        ToDtype(torch.float32, scale=True),
-        Normalize((0.5,), (0.5,)),
+        Resize((1024, 1024)),
+        ToTensor(),
+        Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
     train_dataset = Cityscapes(args.data_dir, split="train", mode="fine", target_type="semantic", transforms=transform)
@@ -68,71 +101,68 @@ def fine_tune_light_model(args):
     valid_dataset = wrap_dataset_for_transforms_v2(valid_dataset)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
-    valid_loader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    val_loader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
-    best_valid_loss = float("inf")
-    model_save_path = os.path.join("checkpoints", f"light_head_{args.experiment_id}.pth")
-    os.makedirs("checkpoints", exist_ok=True)
+    encoder = load_sam_model(args.sam_checkpoint, device)
+    model = SAMSegmentationModel(encoder=encoder, num_classes=19).to(device)
 
+    criterion = nn.CrossEntropyLoss(ignore_index=255)
+    optimizer = AdamW(model.parameters(), lr=args.lr)
+    scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
+
+    best_valid_loss = float('inf')
     for epoch in range(args.epochs):
-        sam.eval()
-        light_head.train()
-        train_loss = 0
+        print(f"Epoch {epoch+1:02}/{args.epochs:02}")
+        model.train()
 
         for i, (images, labels) in enumerate(train_loader):
-            images, labels = images.to(device), labels.to(device).squeeze(1)
-
-            with torch.no_grad():
-                features = sam.image_encoder(images)  # shape: (B, C, H, W)
-
-            outputs = light_head(features)
-            loss = criterion(outputs, labels)
+            labels = convert_to_train_id(labels)
+            images, labels = images.to(device), labels.to(device).long().squeeze(1)
 
             optimizer.zero_grad()
+            outputs = model(images)
+            loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
 
-            train_loss += loss.item()
             wandb.log({"train_loss": loss.item(), "epoch": epoch + 1}, step=epoch * len(train_loader) + i)
 
-        # Validation
-        light_head.eval()
-        valid_loss = 0
-        total_infer_time = 0
+        model.eval()
         with torch.no_grad():
-            for images, labels in valid_loader:
-                images, labels = images.to(device), labels.to(device).squeeze(1)
-                features = sam.image_encoder(images)
-                start = time.time()
-                outputs = light_head(features)
-                end = time.time()
+            losses = []
+            for i, (images, labels) in enumerate(val_loader):
+                labels = convert_to_train_id(labels)
+                images, labels = images.to(device), labels.to(device).long().squeeze(1)
+                outputs = model(images)
                 loss = criterion(outputs, labels)
-                valid_loss += loss.item()
-                total_infer_time += (end - start)
+                losses.append(loss.item())
 
-        avg_valid_loss = valid_loss / len(valid_loader)
-        avg_infer_time = total_infer_time / len(valid_loader.dataset)
-        model_size_mb = sum(p.numel() for p in light_head.parameters()) * 4 / (1024 ** 2)
+                if i == 0:
+                    predictions = outputs.softmax(1).argmax(1).unsqueeze(1)
+                    labels = labels.unsqueeze(1)
+                    predictions = convert_train_id_to_color(predictions)
+                    labels = convert_train_id_to_color(labels)
+                    wandb.log({
+                        "predictions": [wandb.Image(make_grid(predictions.cpu(), nrow=4))],
+                        "labels": [wandb.Image(make_grid(labels.cpu(), nrow=4))]
+                    }, step=(epoch + 1) * len(train_loader) - 1)
 
-        wandb.log({
-            "valid_loss": avg_valid_loss,
-            "avg_inference_time": avg_infer_time,
-            "model_size_MB": model_size_mb,
-            "epoch": epoch + 1
-        })
+            valid_loss = sum(losses) / len(losses)
+            wandb.log({"valid_loss": valid_loss}, step=(epoch + 1) * len(train_loader) - 1)
 
-        print(f"Epoch {epoch+1}: Train Loss={train_loss / len(train_loader):.4f}, Valid Loss={avg_valid_loss:.4f}")
+            if valid_loss < best_valid_loss:
+                best_valid_loss = valid_loss
+                torch.save(model.state_dict(), os.path.join(output_dir, f"best_model-epoch={epoch:02}-val_loss={valid_loss:.4f}.pth"))
 
-        if avg_valid_loss < best_valid_loss:
-            best_valid_loss = avg_valid_loss
-            torch.save(light_head.state_dict(), model_save_path)
-            print(f"Best model saved at {model_save_path}")
+        scheduler.step()
+        current_lr = optimizer.param_groups[0]['lr']
+        wandb.log({"learning_rate": current_lr}, step=(epoch + 1) * len(train_loader) - 1)
 
     print("Training complete!")
+    torch.save(model.state_dict(), os.path.join(output_dir, f"final_model-epoch={epoch:02}-val_loss={valid_loss:.4f}.pth"))
     wandb.finish()
-
 
 if __name__ == "__main__":
     parser = get_args_parser()
     args = parser.parse_args()
-    fine_tune_light_model(args)
+    main(args)

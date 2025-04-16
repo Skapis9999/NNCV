@@ -56,7 +56,7 @@ def fine_tune_light_model(args):
 
     transform = Compose([
         ToImage(),
-        Resize((256, 256)),
+        Resize((1024, 1024)),  # Must match what SAM expects
         ToDtype(torch.float32, scale=True),
         Normalize((0.5,), (0.5,)),
     ])

@@ -80,7 +80,7 @@ def fine_tune_light_model(args):
         train_loss = 0
 
         for i, (images, labels) in enumerate(train_loader):
-            images, labels = images.to(device), labels.to(device)
+            images, labels = images.to(device), labels.to(device).squeeze(1)
 
             with torch.no_grad():
                 features = sam.image_encoder(images)  # shape: (B, C, H, W)
@@ -101,7 +101,7 @@ def fine_tune_light_model(args):
         total_infer_time = 0
         with torch.no_grad():
             for images, labels in valid_loader:
-                images, labels = images.to(device), labels.to(device)
+                images, labels = images.to(device), labels.to(device).squeeze(1)
                 features = sam.image_encoder(images)
                 start = time.time()
                 outputs = light_head(features)

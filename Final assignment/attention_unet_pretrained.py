@@ -68,6 +68,9 @@ class AttentionUNet(nn.Module):
         self.encoder3 = resnet.layer3  # 256
         self.encoder4 = resnet.layer4  # 512
 
+        # Freeze encoder
+        for param in resnet.parameters():
+            param.requires_grad = False
         # Bottom
         self.center = self._conv_block(512, 1024)
 

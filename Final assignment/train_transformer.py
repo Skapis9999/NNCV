@@ -51,6 +51,32 @@ def get_args_parser():
     parser.add_argument("--experiment-id", type=str, default="attention-unet-training", help="Experiment ID for Weights & Biases")
     return parser
 
+
+# Unfreeze encoder at epoch 10 sugggested by ->
+# Howard & Ruder (2018) – Universal Language Model Fine-tuning for Text Classification (ULMFiT) https://arxiv.org/abs/1801.06146      
+def unfreeze_layers(model, epoch):
+    if epoch == 8:  # epoch 9
+        print("Unfreezing encoder4 (deepest block)")
+        for param in model.encoder4.parameters():
+            param.requires_grad = True
+    elif epoch == 10:  # epoch 11
+        print("Unfreezing encoder3")
+        for param in model.encoder3.parameters():
+            param.requires_grad = True
+    elif epoch == 12:  # epoch 13
+        print("Unfreezing encoder2")
+        for param in model.encoder2.parameters():
+            param.requires_grad = True
+    elif epoch == 14:  # epoch 15
+        print("Unfreezing encoder1")
+        for param in model.encoder1.parameters():
+            param.requires_grad = True
+    elif epoch == 16:  # epoch 17
+        print("Unfreezing input_layer (stem)")
+        for param in model.input_layer.parameters():
+            param.requires_grad = True
+
+
 def main(args):
     wandb.init(project="5lsm0-cityscapes-segmentation", name=args.experiment_id, config=vars(args))
     
@@ -93,6 +119,9 @@ def main(args):
     best_valid_loss = float('inf')
     for epoch in range(args.epochs):
         print(f"Epoch {epoch+1:04}/{args.epochs:04}")
+
+        unfreeze_layers(model, epoch)
+
         model.train()
         for i, (images, labels) in enumerate(train_dataloader):
             labels = convert_to_train_id(labels)

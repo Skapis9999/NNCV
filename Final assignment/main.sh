@@ -34,4 +34,4 @@ python3 train_transformer.py \
     --lr 0.0001 \
     --num-workers 10 \
     --seed 42 \
-    --experiment-id "attention--unet-training-pretrained-end-with-conv-scheduler" \
+    --experiment-id "attention--unet-training-pretrained-end-with-conv-scheduler-freeze-and-unfreeze" \

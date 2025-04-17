@@ -32,7 +32,6 @@ from torchvision.transforms.v2 import (
 
 from bowlnet import BowlNet
 
-
 # Mapping class IDs to train IDs
 id_to_trainid = {cls.id: cls.train_id for cls in Cityscapes.classes}
 def convert_to_train_id(label_img: torch.Tensor) -> torch.Tensor:
@@ -93,7 +92,7 @@ def main(args):
     # Define the transforms to apply to the data
     transform = Compose([
         ToImage(),
-        Resize((256, 256)),
+        Resize((512, 512)),
         ToDtype(torch.float32, scale=True),
         Normalize((0.5,), (0.5,)),
     ])

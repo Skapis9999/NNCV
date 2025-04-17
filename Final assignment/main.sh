@@ -36,13 +36,22 @@ wandb login
 #     --seed 42 \
 #     --experiment-id "attention--unet-training-pretrained-end-with-conv-scheduler-freeze-and-unfreeze-64batch-512px" \
 
-python3 transfer_learning.py \
+# python3 transfer_learning.py \
+#     --data-dir ./data/cityscapes \
+#     --batch-size 64 \
+#     --epochs 100 \
+#     --lr 0.0001 \
+#     --num-workers 10 \
+#     --seed 42 \
+#     --experiment-id "sam-vit-h-transfer" \
+#     --sam-checkpoint sam_vit_h_4b8939.pth
+
+python3 train_light.py \
     --data-dir ./data/cityscapes \
-    --batch-size 64 \
+    --batch-size 128 \
     --epochs 100 \
     --lr 0.0001 \
     --num-workers 10 \
     --seed 42 \
-    --experiment-id "sam-vit-h-transfer" \
-    --sam-checkpoint sam_vit_h_4b8939.pth
+    --experiment-id "BowlNet_128_batch_512px"
 

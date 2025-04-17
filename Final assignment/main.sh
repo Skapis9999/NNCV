@@ -57,10 +57,10 @@ wandb login
 
 python3 train_afformer.py \
     --data-dir ./data/cityscapes \
-    --batch-size 64 \
+    --batch-size 32 \
     --epochs 100 \
     --lr 0.001 \
     --num-workers 10 \
     --seed 42 \
-    --experiment-id "afformer-tiny"
+    --experiment-id "afformer-tiny-batch32"
 

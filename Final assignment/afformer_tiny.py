@@ -51,10 +51,10 @@ class AFFormerTiny(nn.Module):
             param.requires_grad = False
 
         # Decoder
-        self.decoder4 = DecoderBlock(320, 112, 96)
-        self.decoder3 = DecoderBlock(96, 40, 64)
-        self.decoder2 = DecoderBlock(64, 24, 48)
-        self.decoder1 = DecoderBlock(48, 16, 32)
+        self.decoder4 = DecoderBlock(192, 80, 128)  
+        self.decoder3 = DecoderBlock(128, 40, 96)   
+        self.decoder2 = DecoderBlock(96, 24, 64) 
+        self.decoder1 = DecoderBlock(64, 16, 32)
         self.final_conv = nn.Conv2d(32, n_classes, kernel_size=1)
 
     def forward(self, x):
@@ -73,4 +73,6 @@ class AFFormerTiny(nn.Module):
 
         # Final convolution
         out = self.final_conv(d1)
+        out = F.interpolate(out, size=x.shape[2:], mode="bilinear", align_corners=False)  # Upsample to input size
+        
         return out

@@ -141,7 +141,8 @@ def main(args):
 
     # Define the optimizer
     optimizer = AdamW(model.parameters(), lr=args.lr)
-    scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
+    scheduler1 = StepLR(optimizer, step_size=10, gamma=0.1)
+    scheduler2 = StepLR(optimizer, step_size=15, gamma=0.1)
 
     # Training loop
     best_valid_loss = float('inf')
@@ -219,7 +220,8 @@ def main(args):
                     f"best_model-epoch={epoch:04}-val_loss={valid_loss:04}.pth"
                 )
                 torch.save(model.state_dict(), current_best_model_path)
-        scheduler.step()
+        scheduler1.step()
+        scheduler2.step()
         current_lr = optimizer.param_groups[0]['lr']
         wandb.log({"learning_rate": current_lr}, step=(epoch + 1) * len(train_dataloader) - 1)
 

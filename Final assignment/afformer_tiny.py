@@ -4,6 +4,9 @@ import torch.nn.functional as F
 from torchvision.models.segmentation.deeplabv3 import DeepLabHead
 from torchvision.models import efficientnet_b0
 
+"""
+https://arxiv.org/abs/2301.04648
+"""
 class DepthwiseSeparableConv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, padding=1):
         super().__init__()

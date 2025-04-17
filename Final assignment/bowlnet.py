@@ -32,6 +32,10 @@ class UpBlock(nn.Module):
 
     def forward(self, x, skip):
         x = self.trans_conv(x)
+        # Resize skip to match x
+        if x.size() != skip.size():
+            skip = F.interpolate(skip, size=x.shape[2:], mode='bilinear', align_corners=False)
+
         x = x + skip  # Residual addition
         x = self.conv(x)
         return x

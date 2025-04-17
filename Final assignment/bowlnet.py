@@ -37,7 +37,7 @@ class UpBlock(nn.Module):
         return x
 
 class BowlNet(nn.Module):
-    def __init__(self, in_channels=3, num_classes=19):
+    def __init__(self, in_channels=3, n_classes=19):
         super(BowlNet, self).__init__()
         self.enc1 = ConvBlock(in_channels, 32)
         self.enc2 = ConvBlock(32, 64)
@@ -55,7 +55,7 @@ class BowlNet(nn.Module):
         self.up3 = UpBlock(128, 64)
         self.up4 = UpBlock(64, 32)
 
-        self.final = nn.Conv2d(32, num_classes, kernel_size=1)
+        self.final = nn.Conv2d(32, n_classes, kernel_size=1)
 
     def forward(self, x):
         x1 = self.enc1(x)

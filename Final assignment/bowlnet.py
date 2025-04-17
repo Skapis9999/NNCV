@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+"""
+https://ieeexplore.ieee.org/document/10824509
+"""
 class ConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, dropout=0.2):
         super(ConvBlock, self).__init__()

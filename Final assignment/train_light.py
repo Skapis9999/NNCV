@@ -29,6 +29,7 @@ from torchvision.transforms.v2 import (
     ToImage,
     ToDtype,
 )
+from torch.optim.lr_scheduler import StepLR
 
 from bowlnet import BowlNet
 
@@ -140,6 +141,7 @@ def main(args):
 
     # Define the optimizer
     optimizer = AdamW(model.parameters(), lr=args.lr)
+    scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
 
     # Training loop
     best_valid_loss = float('inf')
@@ -217,7 +219,10 @@ def main(args):
                     f"best_model-epoch={epoch:04}-val_loss={valid_loss:04}.pth"
                 )
                 torch.save(model.state_dict(), current_best_model_path)
-        
+        scheduler.step()
+        current_lr = optimizer.param_groups[0]['lr']
+        wandb.log({"learning_rate": current_lr}, step=(epoch + 1) * len(train_dataloader) - 1)
+
     print("Training complete!")
 
     # Save the model

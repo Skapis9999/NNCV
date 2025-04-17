@@ -48,10 +48,10 @@ wandb login
 
 python3 train_light.py \
     --data-dir ./data/cityscapes \
-    --batch-size 100 \
+    --batch-size 64 \
     --epochs 100 \
     --lr 0.0001 \
     --num-workers 10 \
     --seed 42 \
-    --experiment-id "BowlNet_100_batch_512px"
+    --experiment-id "BowlNet_64_batch_512px"
 

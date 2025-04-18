@@ -114,12 +114,16 @@ def get_model_by_folder(folder_name):
     # elif "attention--unet-training" in folder_name:
     #     return AttentionUNet(in_channels=3, n_classes=19)
     elif "attention--unet-training-pretrained-end-with-conv" in folder_name:
+        print(1)
         return AttentionUNetPretrained(in_channels=3, n_classes=19)
     elif "attention--unet-training-pretrained-end-with-conv-scheduler" in folder_name:
+        print(2)
         return AttentionUNetPretrained(in_channels=3, n_classes=19)
     elif "attention--unet-training-pretrained-end-with-conv-scheduler-freeze-and-unfreeze-128batch-512px" in folder_name:
+        print(3)
         return AttentionUNetPretrained(in_channels=3, n_classes=19)
     elif "attention--unet-training-pretrained-end-with-conv-scheduler-freeze-and-unfreeze-64batch-512px" in folder_name:
+        print(4)
         return AttentionUNetPretrained(in_channels=3, n_classes=19)
     elif "BowlNet_64_batch_512px" in folder_name:
         return BowlNet(in_channels=3, n_classes=19)
@@ -176,6 +180,7 @@ def main():
             # "Params (M)": round(params, 2)
             "Params (M)": round(param_count, 2) if param_count != -1 else "N/A"
         })
+        print(results)
 
     print("\n=== Evaluation Summary ===")
     for res in results:

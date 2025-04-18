@@ -170,8 +170,10 @@ def main():
         val_set = wrap_dataset_for_transforms_v2(val_set)
         val_loader = DataLoader(val_set, batch_size=4, shuffle=False)
         model = get_model_by_folder(folder).to(DEVICE)
-        model.load_state_dict(torch.load(load_best_model_path(folder_path), map_location=DEVICE))
-
+        try:
+            model.load_state_dict(torch.load(load_best_model_path(folder_path), map_location=DEVICE))
+        except:
+            continue
         metrics = evaluate_model(model, val_loader)
         sample_input = next(iter(val_loader))[0].to(DEVICE)
         # flops, params = count_flops_params(model, sample_input)

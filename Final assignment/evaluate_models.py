@@ -3,8 +3,9 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision.datasets import Cityscapes, wrap_dataset_for_transforms_v2
 from torchmetrics.classification import MulticlassJaccardIndex, MulticlassAccuracy
-from fvcore.nn import FlopCountAnalysis, parameter_count
+# from fvcore.nn import FlopCountAnalysis, parameter_count
 from transforms_config import TRANSFORM_CONFIG
+from torchinfo import summary
 
 # Import models
 from afformer_tiny import AFFormerTiny  # Import your other models as needed
@@ -38,10 +39,19 @@ def evaluate_model(model, dataloader):
         "Accuracy": acc_metric.compute().item()
     }
 
-def count_flops_params(model, sample_input):
-    flops = FlopCountAnalysis(model, sample_input)
-    params = parameter_count(model)
-    return flops.total() / 1e9, params[""] / 1e6  # GFLOPs and MParams
+# def count_flops_params(model, sample_input):
+#     flops = FlopCountAnalysis(model, sample_input)
+#     params = parameter_count(model)
+#     return flops.total() / 1e9, params[""] / 1e6  # GFLOPs and MParams
+
+def get_param_count(model, input_size):
+    try:
+        model.eval()
+        info = summary(model, input_size=input_size, verbose=0)
+        return info.total_params / 1e6  # Return in MParams
+    except Exception as e:
+        print(f"Could not summarize model: {e}")
+        return -1
 
 def get_model_by_folder(folder_name):
     if "afformer-tiny" in folder_name:
@@ -98,18 +108,25 @@ def main():
 
         metrics = evaluate_model(model, val_loader)
         sample_input = next(iter(val_loader))[0].to(DEVICE)
-        flops, params = count_flops_params(model, sample_input)
+        # flops, params = count_flops_params(model, sample_input)
+        param_count = get_param_count(model, input_size=sample_input.shape)
 
         results.append({
             "folder": folder,
             **metrics,
-            "FLOPs (G)": round(flops, 2),
-            "Params (M)": round(params, 2)
+            # "FLOPs (G)": round(flops, 2),
+            # "Params (M)": round(params, 2)
+            "Params (M)": round(param_count, 2) if param_count != -1 else "N/A"
         })
 
     print("\n=== Evaluation Summary ===")
     for res in results:
         print(res)
+
+    if skipped_folders:
+        print("\n Skipped Folders:")
+        for f in skipped_folders:
+            print(f"- {f}")
 
 if __name__ == "__main__":
     main()

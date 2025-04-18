@@ -111,8 +111,8 @@ def get_model_by_folder(folder_name):
         return AFFormerTiny(in_channels=3, n_classes=19)
     elif "afformer-tiny-batch32" in folder_name:
         return AFFormerTiny(in_channels=3, n_classes=19)
-    elif "attention--unet-training" in folder_name:
-        return AttentionUNet(in_channels=3, n_classes=19)
+    # elif "attention--unet-training" in folder_name:
+    #     return AttentionUNet(in_channels=3, n_classes=19)
     elif "attention--unet-training-pretrained-end-with-conv" in folder_name:
         return AttentionUNetPretrained(in_channels=3, n_classes=19)
     elif "attention--unet-training-pretrained-end-with-conv-scheduler" in folder_name:

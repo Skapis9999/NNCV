@@ -6,6 +6,8 @@ from torchmetrics.classification import MulticlassJaccardIndex, MulticlassAccura
 # from fvcore.nn import FlopCountAnalysis, parameter_count
 from transforms_config import TRANSFORM_CONFIG
 from torchinfo import summary
+import numpy as np
+from PIL import Image
 
 # Import models
 from afformer_tiny import AFFormerTiny  # Import your other models as needed
@@ -15,6 +17,57 @@ from bowlnet import BowlNet
 from unet import UNet
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+CITYSCAPES_ID_TO_TRAINID = {
+     0: 255,
+     1: 255,
+     2: 255,
+     3: 255,
+     4: 255,
+     5: 255,
+     6: 255,
+     7: 0,    # road
+     8: 1,    # sidewalk
+     9: 255,
+    10: 255,
+    11: 2,    # building
+    12: 3,    # wall
+    13: 4,    # fence
+    14: 255,
+    15: 255,
+    16: 255,
+    17: 5,    # pole
+    18: 255,
+    19: 6,    # traffic light
+    20: 7,    # traffic sign
+    21: 8,    # vegetation
+    22: 9,    # terrain
+    23: 10,   # sky
+    24: 11,   # person
+    25: 12,   # rider
+    26: 13,   # car
+    27: 14,   # truck
+    28: 15,   # bus
+    29: 255,
+    30: 255,
+    31: 16,   # train
+    32: 17,   # motorcycle
+    33: 18,   # bicycle
+    -1: 255,
+}
+
+def convert_to_train_ids(label):
+    label = np.array(label)
+    label_copy = 255 * np.ones_like(label, dtype=np.uint8)
+    for k, v in CITYSCAPES_ID_TO_TRAINID.items():
+        label_copy[label == k] = v
+    return Image.fromarray(label_copy)
+
+class CityscapesTrainIDWrapper(Cityscapes):
+    def __getitem__(self, index):
+        image, label = super().__getitem__(index)
+        label = convert_to_train_ids(label)
+        return image, label
 
 def load_best_model_path(folder):
     files = [f for f in os.listdir(folder) if f.endswith(".pth")]
@@ -99,10 +152,15 @@ def main():
             skipped_folders.append(folder)
             continue
 
-        val_set = Cityscapes("./data/cityscapes", split="val", mode="fine", target_type="semantic", transforms=transform)
+        val_set = CityscapesTrainIDWrapper(
+            "./data/cityscapes", 
+            split="val", 
+            mode="fine", 
+            target_type="semantic", 
+            transforms=transform
+        )
         val_set = wrap_dataset_for_transforms_v2(val_set)
         val_loader = DataLoader(val_set, batch_size=4, shuffle=False)
-
         model = get_model_by_folder(folder).to(DEVICE)
         model.load_state_dict(torch.load(load_best_model_path(folder_path), map_location=DEVICE))
 

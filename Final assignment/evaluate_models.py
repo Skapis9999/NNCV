@@ -108,8 +108,10 @@ def get_param_count(model, input_size):
 
 def get_model_by_folder(folder_name):
     if "afformer-tiny" in folder_name:
+        print("------------afformer_1---------------")
         return AFFormerTiny(in_channels=3, n_classes=19)
     elif "afformer-tiny-batch32" in folder_name:
+        print("---------------afformer_2(batch32)------------")
         return AFFormerTiny(in_channels=3, n_classes=19)
     # elif "attention--unet-training" in folder_name:
     #     return AttentionUNet(in_channels=3, n_classes=19)
@@ -117,7 +119,7 @@ def get_model_by_folder(folder_name):
         print(1)
         return AttentionUNetPretrained(in_channels=3, n_classes=19)
     elif "attention--unet-training-pretrained-end-with-conv-scheduler" in folder_name:
-        print(2)
+        print("2_sheduler")
         return AttentionUNetPretrained(in_channels=3, n_classes=19)
     elif "attention--unet-training-pretrained-end-with-conv-scheduler-freeze-and-unfreeze-128batch-512px" in folder_name:
         print(3)
@@ -126,8 +128,10 @@ def get_model_by_folder(folder_name):
         print(4)
         return AttentionUNetPretrained(in_channels=3, n_classes=19)
     elif "BowlNet_64_batch_512px" in folder_name:
+        print("bowl")
         return BowlNet(in_channels=3, n_classes=19)
     elif "unet-training" in folder_name:
+        print("unet")
         return UNet(in_channels=3, n_classes=19)
     # add more models here (be careful if they are missing!)
     raise ValueError(f"Unknown model for folder: {folder_name}")

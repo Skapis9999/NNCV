@@ -22,13 +22,13 @@ TRANSFORM_CONFIG = {
     ]),
     "attention--unet-training-pretrained-end-with-conv": Compose([
         ToImage(),
-        Resize((512, 512)),
+        Resize((256, 256)),
         ToDtype(torch.float32, scale=True),
         Normalize((0.5,), (0.5,)),
     ]),
     "attention--unet-training-pretrained-end-with-conv-scheduler": Compose([
         ToImage(),
-        Resize((512, 512)),
+        Resize((256, 256)),
         ToDtype(torch.float32, scale=True),
         Normalize((0.5,), (0.5,)),
     ]),

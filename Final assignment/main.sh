@@ -55,12 +55,13 @@ wandb login
 #     --seed 42 \
 #     --experiment-id "BowlNet_64_batch_512px"
 
-python3 train_afformer.py \
-    --data-dir ./data/cityscapes \
-    --batch-size 32 \
-    --epochs 100 \
-    --lr 0.001 \
-    --num-workers 10 \
-    --seed 42 \
-    --experiment-id "afformer-tiny-batch32"
+# python3 train_afformer.py \
+#     --data-dir ./data/cityscapes \
+#     --batch-size 32 \
+#     --epochs 100 \
+#     --lr 0.001 \
+#     --num-workers 10 \
+#     --seed 42 \
+#     --experiment-id "afformer-tiny-batch32"
 
+python3 evaluate_models.py

@@ -181,7 +181,8 @@ wandb/
 data.zip
 slurm*
 *.sif
-*.pth
+# *.pth
 *.zip
 test.py
 *.jpg
+sam_vit*

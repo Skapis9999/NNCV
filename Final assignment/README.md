@@ -22,6 +22,62 @@ This repository contains the final assignment for the **NNCV** course at TU/e, f
 
 - TU/e Email: c.skapetis@student.tue.nl
 
+## Content
+
+### Model Architectures:
+
+- afformer_tiny.py -> the AFFormer Architecture
+- attention_unet_pretrained.py -> the UNet with attention Architecture and pretrained encoder
+- attention_unet.py -> the UNet with attention Architecture
+- bowlnet.py -> the BowlNet Architecture
+- unet.py -> the UNet Architecture
+
+### Images:
+
+- 800px-Edsger_Wybe_Dijkstra.jpg -> Easter Egg image of Edsger Wybe Dijkstra used for initial testing
+- Comparison_correct.png -> Initial Image that was supposed to be used in the final report
+- Comparison_correct.png -> Image used in the final report
+
+### .sh files:
+
+- download_docker_and_data.sh -> Bourne shell script used to download the container and the data
+- jobscript_slurm.sh -> Bourne shell script used to run the main.sh It also decides the gpus used and the running time. 
+- main.sh -> Bourne shell script used to run the training file. Different runs can be seen in comments. The last active run is about evaluation.
+
+### pth models:
+
+- sam_vit_h_4b8939.pth -> model used for trasfer learning. (It is not uploaded on github due to size limitations.) You need to download it to run the transfer_learning.py file.
+- checkpoints -> folder with all the checkpoints saved during the training sessions
+
+### data:
+
+- data -> folder with all the data. When you train the model it's the data downloaded by the .sh file. When you evaluate your model delete this folder or rename it and replace it with the 3 pictures you want to segment.
+
+### Training scripts:
+
+- train_afformer.py -> Training script for the AFFormer
+- train_light.py -> Training script for the BowlNet
+- train_peak.py -> Training script for the transfer learning (Failed)
+- train_transformer.py -> Training script for the UNet with attention. Changed the imported version to train with pretrained weights or not
+- train.py -> Training script for the Unet
+- transfer_learning.py -> Training script for the transfer learning (Failed)
+
+### Evaluation scripts:
+
+- transforms_config.py -> Utility script for the evaluation
+- evaluate_FLOPs.py -> Evaluation script counting the FLOPs. You can run it locally
+- evaluate_models.py -> Evaluation script for the rest of the metrics
+
+### Requirments:
+
+torch>=1.10
+torchvision>=0.11
+numpy
+Pillow
+matplotlib
+tqdm
+
+
 If you encounter any issues or have questions, feel free to reach out via TU/e email.
 
 -----------------------------------------

@@ -26,23 +26,29 @@ This repository contains the final assignment for the **NNCV** course at TU/e, f
 
 ### Model Architectures:
 
-- afformer_tiny.py -> the AFFormer Architecture
-- attention_unet_pretrained.py -> the UNet with attention Architecture and pretrained encoder
-- attention_unet.py -> the UNet with attention Architecture
-- bowlnet.py -> the BowlNet Architecture
-- unet.py -> the UNet Architecture
+| Script                        | Description                                                  |
+|------------------------------|--------------------------------------------------------------|
+| `afformer_tiny.py`           | AFFormer architecture                                        |
+| `attention_unet_pretrained.py` | UNet with attention & pretrained encoder                    |
+| `attention_unet.py`          | UNet with attention                                          |
+| `bowlnet.py`                 | BowlNet architecture                                         |
+| `unet.py`                    | Standard UNet architecture   
 
 ### Images:
 
-- 800px-Edsger_Wybe_Dijkstra.jpg -> Easter Egg image of Edsger Wybe Dijkstra used for initial testing
-- Comparison_correct.png -> Initial Image that was supposed to be used in the final report
-- Comparison_correct.png -> Image used in the final report
+| File                          | Purpose                                                   |
+|-------------------------------|-----------------------------------------------------------|
+| `800px-Edsger_Wybe_Dijkstra.jpg` | Easter Egg image for initial testing                     |
+| `Comparison_correct.png`        | Comparison image used in the final report
+| `Comparison_correct.png`        | Initial Image that was supposed to be used in the final report  
 
 ### .sh files:
 
-- download_docker_and_data.sh -> Bourne shell script used to download the container and the data
-- jobscript_slurm.sh -> Bourne shell script used to run the main.sh It also decides the gpus used and the running time. 
-- main.sh -> Bourne shell script used to run the training file. Different runs can be seen in comments. The last active run is about evaluation.
+| Script                         | Description                                                   |
+|--------------------------------|---------------------------------------------------------------|
+| `download_docker_and_data.sh`  | Downloads the container and dataset                          |
+| `jobscript_slurm.sh`           | SLURM job script (manages GPUs, run time, and calls `main.sh`) |
+| `main.sh`                      | Main training script with multiple experiment configurations |
 
 ### pth models:
 
@@ -55,18 +61,22 @@ This repository contains the final assignment for the **NNCV** course at TU/e, f
 
 ### Training scripts:
 
-- train_afformer.py -> Training script for the AFFormer
-- train_light.py -> Training script for the BowlNet
-- train_peak.py -> Training script for the transfer learning (Failed)
-- train_transformer.py -> Training script for the UNet with attention. Changed the imported version to train with pretrained weights or not
-- train.py -> Training script for the Unet
-- transfer_learning.py -> Training script for the transfer learning (Failed)
+| Script                | Purpose                                                              |
+|------------------------|----------------------------------------------------------------------|
+| `train_afformer.py`    | Train AFFormer model                                                |
+| `train_light.py`       | Train BowlNet model                                                 |
+| `train_peak.py`        | Attempted training with transfer learning (did not succeed)         |
+| `train_transformer.py` | Train Attention UNet, toggles between pretrained & scratch training |
+| `train.py`             | Train standard UNet                                                 |
+| `transfer_learning.py` | Transfer learning training (did not succeed)                        |
 
 ### Evaluation scripts:
 
-- transforms_config.py -> Utility script for the evaluation
-- evaluate_FLOPs.py -> Evaluation script counting the FLOPs. You can run it locally
-- evaluate_models.py -> Evaluation script for the rest of the metrics
+| Script                   | Purpose                                              |
+|--------------------------|------------------------------------------------------|
+| `transforms_config.py`   | Contains transform configurations for evaluation     |
+| `evaluate_FLOPs.py`      | Calculates FLOPs (can be run locally)               |
+| `evaluate_models.py`     | Runs evaluation metrics on models   
 
 ### Requirments:
 

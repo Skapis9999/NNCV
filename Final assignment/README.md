@@ -1,5 +1,31 @@
 # Final Assignment: Cityscape Challenge  
 
+## 
+
+This repository contains the final assignment for the **NNCV** course at TU/e, focused on comparing multiple semantic segmentation models on the Cityscapes dataset. The goal is to perform inference using several models and visualize their predictions side-by-side.
+
+## Models Included
+
+- **AFFormer Tiny**
+- **Attention UNet (Pretrained & Finetuned versions)**
+- **BowlNet**
+- **Standard UNet**
+
+## Prepare the folders:
+
+- Place the trained model checkpoints (.pth files) inside their respective subfolders in checkpoints/.
+-  Place all input images (for inference) inside data/cityscapes/.
+
+## Student Info
+
+- Codalab Username: skapis9999
+
+- TU/e Email: c.skapetis@student.tue.nl
+
+If you encounter any issues or have questions, feel free to reach out via TU/e email.
+
+-----------------------------------------
+
 Welcome to the **Cityscape Challenge**, the final project for this course!  
 
 In this assignment, you'll put your knowledge of Neural Networks (NNs) for computer vision into action by tackling real-world problems using the **CityScapes dataset**. This dataset contains large-scale, high-quality images of urban environments, making it perfect for tasks like **semantic segmentation** and **object detection**.  

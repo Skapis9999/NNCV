@@ -21,23 +21,22 @@ The **final assignment** is the cornerstone of this course and accounts for **50
 
 This final assignment requires a deeper dive into the subject, pushing you to apply the knowledge and skills gained throughout the course.
 
-## Authors and Contact
+## Finding the Correct Assignment Material
 
-This course material is developed and maintained by the following contributors:  
+Use this checklist to quickly find what you need:
 
-- **Cris H.B. Claessens**  
-  Email: [c.h.b.claessens@tue.nl](mailto:c.h.b.claessens@tue.nl)  
+1. **Weekly notebooks (practice):** go to [Weekly notebooks](Weekly%20notebooks/)
+   - Start from `00_installation.ipynb`
+   - Then follow the numerical order (`01_02`, `03`, `04`, `05`, `06`, `08`)
 
-- **Tim J.M. Jaspers**  
-  Email: [t.j.m.jaspers@tue.nl](mailto:t.j.m.jaspers@tue.nl)
+2. **Final graded project:** go to [Final assignment](Final%20assignment/)
+   - Main guide: [Final assignment/README.md](Final%20assignment/README.md)
+   - Setup help: [Final assignment/README-Installation.md](Final%20assignment/README-Installation.md)
+   - Cluster/HPC usage: [Final assignment/README-Slurm.md](Final%20assignment/README-Slurm.md)
 
-- **Francisco De Espírito Santo e Caetano**  
-  Email: [f.t.de.espirito.santo.e.caetano@tue.nl](mailto:f.t.de.espirito.santo.e.caetano@tue.nl)
+3. **Report/documentation PDF:** open the final report PDF inside [Final assignment](Final%20assignment/)
+   - File name includes the course code (`5LSM0`) and can be used to verify you are in the correct project.
 
-- **Carolus (Koen) H.J Kusters**  
-  Email: [c.h.j.kusters@tue.nl](mailto:c.h.j.kusters@tue.nl)
+## Communication
 
-- **dr. Christiaan G.A. Viviers**  
-  Email: [c.g.a.vivers@tue.nl](mailto:c.g.a.vivers@tue.nl)
-
-If you have questions or need assistance, you can always reach out to us via email. However, we strongly encourage you to post your questions in the **Discussions** section of this GitHub repository. This way, other students can benefit from the conversations and contribute by helping each other out.
+For questions, use the **Discussions** tab of this repository so answers are visible to everyone.

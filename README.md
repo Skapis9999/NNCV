@@ -35,7 +35,6 @@ Use this checklist to quickly find what you need:
    - Cluster/HPC usage: [Final assignment/README-Slurm.md](Final%20assignment/README-Slurm.md)
 
 3. **Report/documentation PDF:** open the final report PDF inside [Final assignment](Final%20assignment/)
-   - File name includes the course code (`5LSM0`) and can be used to verify you are in the correct project.
 
 ## Communication
 

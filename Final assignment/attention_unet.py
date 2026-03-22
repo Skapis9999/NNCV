@@ -124,9 +124,3 @@ class AttentionUNet(nn.Module):
         d1 = self.up_conv1(d1)
         
         return self.final(d1)
-
-# if __name__ == "__main__":
-#     model = AttentionUNet(in_channels=3, n_classes=19)
-#     x = torch.randn(1, 3, 256, 256)  # Example input
-#     y = model(x)
-#     print(y.shape)  # Expected output shape: (1, 19, 256, 256)
